@@ -191,7 +191,7 @@
   function resetPasswordPanel(){modal(`<div class="flex"><h2>Redefinir senha</h2><button class="btn secondary sm" id="closeCloud">Fechar</button></div><p>Enviaremos para seu e-mail um link de redefinição de senha.</p><button id="sendRecover" class="btn full">Enviar link para ${safe(session.user.email)}</button><p id="recoverResult" class="muted small"></p>`);$('sendRecover').onclick=async()=>{try{await request('POST','/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+location.pathname),{email:session.user.email},false);msg($('recoverResult'),'Confira sua caixa de entrada e spam.')}catch(e){msg($('recoverResult'),friendly(e))}}}
   async function callbackFromEmail(){const hash=new URLSearchParams(location.hash.slice(1));const type=hash.get('type');if(hash.get('access_token') && hash.get('refresh_token')){
     const tokens={access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:Number(hash.get('expires_in')||3600)};
-    history.replaceState(null,'',location.pathname+location.search);
+    window.history.replaceState(null,'',location.pathname+location.search);
     try{const me=await requestWithToken('GET','/auth/v1/user',tokens.access_token);tokens.user=me;await login(tokens);if(type==='recovery')passwordEditor()}catch(e){cloudMessage='Falha ao confirmar o link: '+friendly(e);printBar()}return true}
     if(location.search.includes('code=') || type==='signup'){
       // Supabase default can redirect with a PKCE code; explicit support requires verifier absent in static client.
