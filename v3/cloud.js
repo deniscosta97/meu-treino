@@ -6,8 +6,8 @@
     && typeof CONF.anonKey === 'string' && CONF.anonKey.length > 30 && !CONF.anonKey.startsWith('COLE_');
   const API = (CONF.url||'').replace(/\/$/,'');
   const sessionKey = 'meu_treino_v3_session';
-  let session = null, revision = 0, dirty = false, active = false, busy = false, blocked = false;
-  let syncTimer = null, refreshPromise = null, epoch = 0, cloudMessage = '', mode = 'guest';
+  let session = null, revision = 0, dirty = false, active = false, busy = false, blocked = false, deleting = false;
+  let syncTimer = null, refreshPromise = null, epoch = 0, cloudMessage = '', mode = 'entry';
   const OLD_KEY = 'meu_treino_v2';
   const GUEST_KEY = 'meu_treino_v3_guest';
   const safe = s => esc(s);
@@ -29,7 +29,7 @@
     obj.migrations = Array.isArray(obj.migrations) ? obj.migrations : [];
     return obj;
   }
-  function setLocal(data){state=hydrate(data);storage.set(key,JSON.stringify(state));selected=Object.keys(state.workouts)[0]||'RUN';showPage('inicio')}
+  function setLocal(data){state=hydrate(data);if(key!==GUEST_KEY)storage.set(key,JSON.stringify(state));selected=Object.keys(state.workouts)[0]||'RUN';showPage('inicio');if(key!==GUEST_KEY){mode='user';showEntry('ready')}}
   function getV2(){try{const raw=storage.get(OLD_KEY);if(!raw)return null;const d=JSON.parse(raw);return hydrate(d)}catch{return null}}
   function counts(s){return {treinos:Object.keys(s.workouts||{}).length,sessoes:(s.logs||[]).length,corridas:(s.runLogs||[]).length,pesos:(s.weights||[]).length}}
   function summarize(s){const c=counts(s);return `${c.treinos} fichas · ${c.sessoes} treinos · ${c.corridas} corridas · ${c.pesos} pesagens`}
@@ -38,9 +38,59 @@
   function isPending(){return session && storage.get(pendingKey(session.user.id))==='1'}
   function markPending(){if(session)storage.set(pendingKey(session.user.id),'1')}
   function clearPending(){if(session)storage.del(pendingKey(session.user.id))}
+  // Entrada centralizada: nenhuma ficha aparece até o usuário optar por entrar ou visitar.
+  // No modo visitante todos os registros ficam somente em memória; recarregar descarta tudo.
+  function showEntry(status='choose',notice=''){
+    const gate=$('entryGate');if(!gate)return;
+    if(status==='ready'){
+      document.body.classList.remove('entry-locked');gate.hidden=true;gate.innerHTML='';return;
+    }
+    gate.hidden=false;document.body.classList.add('entry-locked');
+    const loading=status==='loading';
+    gate.innerHTML=`<div class="entry-panel"><div class="entry-mark" aria-hidden="true">▤</div><div class="eyebrow">MEU TREINO · VERSÃO 3.1</div>
+      <h1>Seu progresso,<br>seu treino.</h1><p class="entry-subtitle">Treine do seu jeito. Crie suas fichas, registre as cargas e acompanhe sua evolução.</p>
+      ${notice?`<p class="cloudnotice error" role="alert">${safe(notice)}</p>`:''}
+      ${loading?'<p class="entry-loading" role="status">Verificando sua sessão…</p>':
+      `<form id="gateAuthForm" class="entry-login stack">
+        <div><label for="gateEmail">E-mail</label><input type="email" id="gateEmail" autocomplete="email" placeholder="voce@email.com" required></div>
+        <div><label for="gatePassword">Senha</label><input id="gatePassword" type="password" minlength="8" autocomplete="current-password" required></div>
+        <p id="gateAuthMessage" class="small" role="status" aria-live="polite"></p>
+        <button type="submit" id="gateSubmit" class="btn">Entrar</button>
+      </form>
+      <div class="entry-actions">
+        <button type="button" id="gateSignup" class="btn secondary">Criar conta gratuita</button>
+        <button type="button" id="gateGuest" class="btn entry-guest">Continuar sem cadastro</button>
+      </div><button type="button" id="gateForgot" class="entry-forgot">Esqueci minha senha</button>
+      <div class="entry-note"><strong>Com conta:</strong> seu histórico e suas cargas ficam sincronizados na nuvem.<br><strong>Sem cadastro:</strong> teste os treinos à vontade, mas nada será salvo e tudo será perdido ao sair ou recarregar.</div>`}
+    </div>`;
+    if(!loading){
+      $('gateSignup').onclick=()=>accountPanel('up');$('gateGuest').onclick=enterGuest;$('gateForgot').onclick=()=>accountPanel('forgot');
+      $('gateAuthForm').onsubmit=async e=>{e.preventDefault();const submit=$('gateSubmit');submit.disabled=true;msg($('gateAuthMessage'),'Entrando…');
+        try{
+          const email=$('gateEmail').value.trim(),password=$('gatePassword').value;
+          const resp=await request('POST','/auth/v1/token?grant_type=password',{email,password},false);
+          await login(resp);
+        }catch(err){msg($('gateAuthMessage'),friendly(err))}
+        finally{if(submit.isConnected)submit.disabled=false}
+      };
+    }
+  }
+  function enterGuest(){
+    if(session)return;
+    clearTimeout(syncTimer);mode='guest';key=GUEST_KEY;
+    state=hydrate(fresh());selected=Object.keys(state.workouts)[0]||'RUN';
+    dirty=false;active=false;blocked=false;revision=0;cloudMessage='';
+    showEntry('ready');showPage('inicio');printBar();
+  }
+  function exitGuest(){
+    if(session)return;
+    if(!confirm('Sair do modo visitante? Os registros temporários serão perdidos.'))return;
+    state=hydrate(fresh());key=GUEST_KEY;selected='A';mode='entry';cloudMessage='';
+    closeModal();showEntry('choose');printBar();
+  }
   function printBar(){
-    const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Modo local' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
-    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.0'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Treino local · sem login'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
+    const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Não salva dados' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
+    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.1'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
     $('openAccount').onclick=()=>accountPanel();
     const m = $('cloudnotice');
     if(blocked){m.innerHTML=`<div class="cloudnotice error"><b>Sincronização pausada:</b> outra alteração foi encontrada na nuvem. Seus dados continuam salvos no aparelho. <button class="btn sm secondary" id="resolveConflict">Resolver</button></div>`;$('resolveConflict').onclick=()=>conflictPanel()}
@@ -51,17 +101,17 @@
   function modal(body){$('cloudmodal').innerHTML=`<div class="clouddialog"><div class="dialog">${body}</div></div>`;const close=$('closeCloud');if(close)close.onclick=closeModal}
   function closeModal(){$('cloudmodal').innerHTML=''}
   function msg(el,str){if(el)el.textContent=str}
-  function accountPanel(){
+  function accountPanel(initialMode='in'){
     if(!configured){modal(`<div class="flex"><h2>Configuração necessária</h2><button id="closeCloud" class="btn secondary sm">Fechar</button></div><p>O aplicativo já funciona localmente. Para habilitar cadastro público e nuvem, configure o projeto Supabase no arquivo <code>v3/config.js</code> e execute o SQL incluído no pacote.</p><button id="backupAccount" class="btn secondary">Exportar meus dados</button>`);$('backupAccount').onclick=saveAllBackup;return}
     if(session){
-      modal(`<div class="flex"><h2>Minha conta</h2><button id="closeCloud" class="btn secondary sm">✕</button></div><p class="muted small">${safe(session.user.email||'')}</p><div class="barline"><b>Estado</b><p>${blocked?'Conflito pendente':dirty?'Alterações locais aguardando nuvem':'Sincronizado'} · Revisão ${revision}</p></div><div class="stack" style="margin-top:12px"><button class="btn" id="syncNow" ${blocked?'disabled':''}>Sincronizar agora</button><button class="btn secondary" id="reloadCloud">Atualizar dados da nuvem</button><button class="btn secondary" id="importV2">Importar meu histórico 2.0</button><button class="btn secondary" id="exportNow">Exportar backup</button><button class="btn secondary" id="recoverPwd">Alterar minha senha</button><button class="btn danger" id="logoutCloud">Sair da conta</button></div>`);
+      modal(`<div class="flex"><h2>Minha conta</h2><button id="closeCloud" class="btn secondary sm">✕</button></div><p class="muted small">${safe(session.user.email||'')}</p><div class="barline"><b>Estado</b><p>${blocked?'Conflito pendente':dirty?'Alterações locais aguardando nuvem':'Sincronizado'} · Revisão ${revision}</p></div><div class="stack" style="margin-top:12px"><button class="btn" id="syncNow" ${blocked?'disabled':''}>Sincronizar agora</button><button class="btn secondary" id="reloadCloud">Atualizar dados da nuvem</button><button class="btn secondary" id="importV2">Importar meu histórico 2.0</button><button class="btn secondary" id="exportNow">Exportar backup</button><button class="btn secondary" id="recoverPwd">Alterar minha senha</button><button class="btn danger" id="deleteAccount">Excluir minha conta e meus dados</button><button class="btn secondary" id="logoutCloud">Sair da conta</button></div>`);
       $('syncNow').onclick=()=>{closeModal();syncSoon(0)};
       $('reloadCloud').onclick=()=>reloadFromCloud();$('importV2').onclick=()=>migrationPanel();$('exportNow').onclick=saveAllBackup;
-      $('recoverPwd').onclick=()=>resetPasswordPanel();$('logoutCloud').onclick=()=>logout();return
+      $('recoverPwd').onclick=()=>resetPasswordPanel();$('deleteAccount').onclick=()=>deleteAccountPanel();$('logoutCloud').onclick=()=>logout();return
     }
-    modal(`<div class="flex"><h2>Entre ou crie sua conta</h2><button id="closeCloud" class="btn secondary sm">✕</button></div><p class="muted small">Cada usuário tem suas próprias fichas e dados protegidos por regras no banco de dados.</p><div class="tabs"><button id="tabIn" class="tab active">Entrar</button><button id="tabUp" class="tab">Criar conta</button><button id="tabForgot" class="tab">Recuperar acesso</button></div><form id="authForm" class="stack"><div><label>E-mail</label><input type="email" id="emailAuth" autocomplete="email" required placeholder="voce@email.com"></div><div id="pwdBlock"><label>Senha (mínimo 8 caracteres)</label><input type="password" id="passAuth" autocomplete="current-password" minlength="8" required></div><p id="authResult" class="small" role="status"></p><button class="btn full" id="submitAuth" type="submit">Entrar</button></form><p class="small muted">Seus dados da versão 2.0 não serão apagados. Você poderá importá-los depois de entrar.</p>`);
+    modal(`<div class="flex"><h2>Entre ou crie sua conta</h2><button id="closeCloud" class="btn secondary sm">✕</button></div><p class="muted small">Cada usuário tem suas próprias fichas e dados protegidos por regras no banco de dados.</p><div class="tabs"><button id="tabIn" class="tab active">Entrar</button><button id="tabUp" class="tab">Criar conta</button><button id="tabForgot" class="tab">Recuperar acesso</button></div><form id="authForm" class="stack"><div><label>E-mail</label><input type="email" id="emailAuth" autocomplete="email" required placeholder="voce@email.com"></div><div id="pwdBlock"><label>Senha (mínimo 8 caracteres)</label><input type="password" id="passAuth" autocomplete="current-password" minlength="8" required></div><p id="authResult" class="small" role="status"></p><button class="btn full" id="submitAuth" type="submit">Entrar</button></form><p class="small muted">Seus dados da versão 2.0 não serão apagados. Você poderá importá-los depois de entrar.</p>${mode==='guest'?'<p class="small muted">Os dados temporários do visitante não serão transferidos para a conta.</p><button type="button" class="btn secondary full" id="returnWelcome">Sair do modo visitante</button>':''}`);
     let formMode='in';function toggle(m){formMode=m;for(const t of ['In','Up','Forgot'])$('tab'+t).classList.toggle('active',t.toLowerCase()===(m==='forgot'?'forgot':m));$('pwdBlock').hidden=m==='forgot';$('passAuth').required=m!=='forgot';$('passAuth').autocomplete=m==='up'?'new-password':'current-password';$('submitAuth').textContent=m==='in'?'Entrar':m==='up'?'Criar conta':'Enviar link';msg($('authResult'),'')}
-    $('tabIn').onclick=()=>toggle('in');$('tabUp').onclick=()=>toggle('up');$('tabForgot').onclick=()=>toggle('forgot');
+    $('tabIn').onclick=()=>toggle('in');$('tabUp').onclick=()=>toggle('up');$('tabForgot').onclick=()=>toggle('forgot');if($('returnWelcome'))$('returnWelcome').onclick=exitGuest;toggle(initialMode==='up'?'up':initialMode==='forgot'?'forgot':'in');
     $('authForm').onsubmit=async e=>{e.preventDefault();const email=$('emailAuth').value.trim(),password=$('passAuth').value;const btn=$('submitAuth');btn.disabled=true;msg($('authResult'),'Processando…');try{
       if(formMode==='forgot'){await request('POST','/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+location.pathname),{email},false);msg($('authResult'),'Se o endereço existir, você receberá um e-mail de recuperação. Verifique o spam.');return}
       if(formMode==='up'){const resp=await request('POST','/auth/v1/signup?redirect_to='+encodeURIComponent(location.origin+location.pathname),{email,password},false);if(!resp.access_token){msg($('authResult'),'Verifique seu e-mail para confirmar o cadastro e depois entre.');return}await login(resp);return}
@@ -88,7 +138,7 @@
   function setSession(info){const u=info.user||session?.user;if(!u?.id || !info.access_token || !info.refresh_token)throw Error('Resposta de autenticação incompleta');session={user:u,access_token:info.access_token,refresh_token:info.refresh_token,expires_at:info.expires_at||Math.floor(Date.now()/1000)+Number(info.expires_in||3600)};storage.set(sessionKey,JSON.stringify(session))}
   async function login(info){
     if(session && (dirty||isPending())){alert('Há alterações pendentes nesta conta. Faça o backup antes de trocar.');return}
-    closeModal();setSession(info);epoch++;await loadAccount(epoch);
+    closeModal();setSession(info);epoch++;showEntry('loading');await loadAccount(epoch);
   }
   async function loadAccount(marker){
     if(!session)return;active=false;busy=false;blocked=false;cloudMessage='Carregando sua conta…';printBar();
@@ -96,7 +146,7 @@
     let rows;try{rows=await request('GET','/rest/v1/user_states?user_id=eq.'+encodeURIComponent(id)+'&select=payload,revision');}catch(err){
       if(marker!==epoch)return;
       const cache=storage.get(userCacheKey(id));if(cache){key=userCacheKey(id);try{setLocal(JSON.parse(cache))}catch{state=fresh()}revision=Number(storage.get('meu_treino_v3_rev_'+id)||0);dirty=isPending();active=true;cloudMessage='Sem acesso à nuvem. Trabalhe localmente e sincronize depois.';printBar();return}
-      session=null;storage.del(sessionKey);cloudMessage='Não foi possível abrir a conta: '+friendly(err);printBar();return
+      session=null;storage.del(sessionKey);key=GUEST_KEY;state=hydrate(fresh());mode='entry';cloudMessage='Não foi possível abrir a conta: '+friendly(err);showEntry('choose',cloudMessage);printBar();return
     }
     if(marker!==epoch)return;
     key=userCacheKey(id);
@@ -125,18 +175,68 @@
       closeModal();printBar();toast('Dados atualizados!');
     }catch(err){alert('Não foi possível atualizar: '+friendly(err))}finally{if(original?.isConnected)original.disabled=false}
   }
+  function deleteAccountPanel(){
+    if(!session){accountPanel();return}
+    const hasPending=dirty||busy||blocked||isPending();
+    modal(`<div class="flex"><h2>Excluir minha conta</h2><button id="closeCloud" class="btn secondary sm">✕</button></div>
+      <div class="cloudnotice error"><b>Esta operação é irreversível.</b> A conta de <b>${safe(session.user.email||'')}</b> e seus treinos, cargas, corridas e pesagens serão removidos do banco ativo do Meu Treino. Dados já exportados e cópias locais de outros dispositivos não são removidos remotamente. Logs e backups dos provedores seguem seus prazos próprios.</div>
+      ${hasPending?'<div class="cloudnotice error">Existem alterações locais pendentes ou um conflito de sincronização. Baixe seu backup antes de continuar: os registros ainda não sincronizados também serão descartados neste aparelho.</div>':''}
+      <div class="stack" style="margin-top:12px">
+        <button class="btn secondary" id="deleteBackup">1. Baixar backup dos meus dados</button>
+        <div><label for="deletePhrase">2. Para confirmar, digite EXCLUIR</label><input id="deletePhrase" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="EXCLUIR"></div>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px"><input type="checkbox" id="deleteAck" style="width:20px;min-width:20px;margin-top:3px"><span>Entendo que perderei acesso a esta conta e que a operação não pode ser desfeita.</span></label>
+        <button class="btn danger full" id="deleteConfirm" disabled>Excluir definitivamente</button>
+        <button class="btn secondary full" id="deleteCancel">Cancelar e manter minha conta</button>
+      </div><p class="small" role="status" id="deleteResult"></p>`);
+    $('deleteBackup').onclick=saveAllBackup;
+    const approve=()=>{$('deleteConfirm').disabled=deleting||$('deletePhrase').value.trim()!=='EXCLUIR'||!$('deleteAck').checked};
+    $('deletePhrase').addEventListener('input',approve);$('deleteAck').addEventListener('change',approve);
+    $('deleteCancel').onclick=closeModal;
+    $('deleteConfirm').onclick=deleteAccount;
+  }
+  async function deleteAccount(){
+    if(deleting||!session)return;
+    const button=$('deleteConfirm'),status=$('deleteResult');
+    if(!button||button.disabled||$('deletePhrase')?.value.trim()!=='EXCLUIR'||!$('deleteAck')?.checked)return;
+    deleting=true;button.disabled=true;button.textContent='Excluindo sua conta…';msg(status,'Validando a sessão e excluindo os dados. Aguarde.');
+    clearTimeout(syncTimer);
+    const accountId=session.user.id;
+    try{
+      // Nunca envia user_id fornecido pelo navegador: o servidor obtém a conta a partir do token validado.
+      const response=await request('POST','/functions/v1/delete-account',{confirmation:'EXCLUIR'});
+      if(response?.deleted!==true)throw Error('Não foi possível confirmar a exclusão no servidor.');
+      // A exclusão no banco foi confirmada; só agora limpamos as cópias desta conta neste aparelho.
+      epoch++;active=false;busy=false;blocked=false;dirty=false;revision=0;
+      session=null;storage.del(sessionKey);
+      storage.del(userCacheKey(accountId));
+      storage.del(pendingKey(accountId));
+      storage.del('meu_treino_v3_rev_'+accountId);
+      storage.del('meu_treino_v3_import_prompt_'+accountId);
+      key=GUEST_KEY;mode='entry';
+      state=hydrate(fresh());selected='A';
+      showEntry('choose');
+      cloudMessage='Sua conta foi excluída. Os dados locais deste usuário foram removidos deste aparelho.';
+      closeModal();showPage('inicio');printBar();
+      alert('Conta excluída com sucesso. Caso tenha usado o aplicativo em outros aparelhos, limpe os dados locais neles também.');
+      location.reload();
+    }catch(err){
+      deleting=false;msg(status,'A exclusão não foi confirmada. Seus dados foram mantidos. Detalhe: '+friendly(err));
+      if(button?.isConnected){button.textContent='Tentar excluir novamente';button.disabled=false;}
+      printBar();
+    }
+  }
   async function logout(){
     if(dirty||isPending()){if(!confirm('Existem dados ainda não sincronizados. Exporte um backup antes de sair. Deseja continuar?'))return}
-    saveAllBackup();const tok=session?.access_token;epoch++;session=null;storage.del(sessionKey);active=false;blocked=false;dirty=false;revision=0;cloudMessage='';
-    key=GUEST_KEY;let guest;try{guest=JSON.parse(storage.get(GUEST_KEY))}catch{}setLocal(guest||fresh());printBar();closeModal();
+    clearTimeout(syncTimer);const tok=session?.access_token;epoch++;session=null;storage.del(sessionKey);active=false;blocked=false;dirty=false;revision=0;cloudMessage='';
+    key=GUEST_KEY;mode='entry';state=hydrate(fresh());selected='A';closeModal();showEntry('choose');printBar();
     if(tok){fetch(API+'/auth/v1/logout',{method:'POST',headers:{apikey:CONF.anonKey,Authorization:'Bearer '+tok}}).catch(()=>{})}
   }
   window.__mt3SaveHook=()=>{
-    if(!active||!session||blocked)return;
+    if(!active||!session||blocked||deleting)return;
     dirty=true;markPending();printBar();syncSoon(750);
   };
-  function syncSoon(delay=800){if(!session||!active||blocked||!configured)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(epoch),delay)}
-  async function syncNow(marker){if(!session||!dirty||!active||blocked||busy||!navigator.onLine)return;
+  function syncSoon(delay=800){if(!session||!active||blocked||deleting||!configured)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(epoch),delay)}
+  async function syncNow(marker){if(!session||!dirty||!active||blocked||busy||deleting||!navigator.onLine)return;
     busy=true;printBar();const data=snapshot(),baseRevision=revision,accountId=session.user.id;
     try{const next=await request('POST','/rest/v1/rpc/save_my_state',{p_expected_revision:baseRevision,p_payload:data});
       if(marker!==epoch||session?.user.id!==accountId)return;
@@ -192,7 +292,7 @@
   async function callbackFromEmail(){const hash=new URLSearchParams(location.hash.slice(1));const type=hash.get('type');if(hash.get('access_token') && hash.get('refresh_token')){
     const tokens={access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:Number(hash.get('expires_in')||3600)};
     window.history.replaceState(null,'',location.pathname+location.search);
-    try{const me=await requestWithToken('GET','/auth/v1/user',tokens.access_token);tokens.user=me;await login(tokens);if(type==='recovery')passwordEditor()}catch(e){cloudMessage='Falha ao confirmar o link: '+friendly(e);printBar()}return true}
+    try{const me=await requestWithToken('GET','/auth/v1/user',tokens.access_token);tokens.user=me;await login(tokens);if(type==='recovery')passwordEditor()}catch(e){cloudMessage='Falha ao confirmar o link: '+friendly(e);showEntry('choose',cloudMessage);printBar()}return true}
     if(location.search.includes('code=') || type==='signup'){
       // Supabase default can redirect with a PKCE code; explicit support requires verifier absent in static client.
       cloudMessage='Link recebido. Se sua conta foi confirmada, entre com e-mail e senha.';printBar();
@@ -201,14 +301,14 @@
   }
   async function requestWithToken(method,path,token,body){const opts={method,headers:{apikey:CONF.anonKey,Authorization:'Bearer '+token,'Content-Type':'application/json'}};if(body)opts.body=JSON.stringify(body);const r=await fetch(API+path,opts),obj=await r.json();if(!r.ok)throw Error(obj.message||obj.msg||'Erro de autenticação');return obj}
   function passwordEditor(){modal(`<div class="flex"><h2>Criar nova senha</h2><button class="btn secondary sm" id="closeCloud">Fechar</button></div><label>Nova senha (mínimo 8 caracteres)</label><input id="newPwd" type="password" minlength="8" autocomplete="new-password"><button class="btn full" style="margin-top:10px" id="updatePwd">Atualizar senha</button><p id="pwdResult" class="muted small"></p>`);$('updatePwd').onclick=async()=>{const p=$('newPwd').value;if(p.length<8){msg($('pwdResult'),'Use no mínimo 8 caracteres.');return}try{await request('PUT','/auth/v1/user',{password:p});msg($('pwdResult'),'Senha atualizada! Você já pode continuar treinando.')}catch(e){msg($('pwdResult'),friendly(e))}}}
-  async function startup(){printBar();window.addEventListener('online',()=>{cloudMessage='';printBar();syncSoon(0)});window.addEventListener('offline',printBar);
+  async function startup(){showEntry('loading');printBar();window.addEventListener('online',()=>{cloudMessage='';printBar();syncSoon(0)});window.addEventListener('offline',printBar);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSoon(0)});
-    if(!configured){cloudMessage='Versão beta local: configure Supabase para ativar contas e nuvem.';printBar();return}
+    if(!configured){cloudMessage='Versão beta local: configure Supabase para ativar contas e nuvem.';showEntry('choose');printBar();return}
     if(await callbackFromEmail())return;
     let stored;try{stored=JSON.parse(storage.get(sessionKey))}catch{};
-    if(stored?.access_token && stored?.refresh_token && stored?.user?.id){session=stored;epoch++;await loadAccount(epoch)}else printBar();
+    if(stored?.access_token && stored?.refresh_token && stored?.user?.id){session=stored;epoch++;await loadAccount(epoch)}else {showEntry('choose',cloudMessage);printBar()}
   }
-  startup().catch(e=>{cloudMessage='Falha na inicialização da conta: '+friendly(e);printBar()});
+  startup().catch(e=>{cloudMessage='Falha na inicialização da conta: '+friendly(e);showEntry('choose',cloudMessage);printBar()});
   // API de teste com mocks; nenhuma informação confidencial é exposta por isto.
-  window.MeuTreino3={getStatus:()=>({configured,mode:session?'user':'guest',dirty,revision,blocked}),showLogin:accountPanel,backup:saveAllBackup};
+  window.MeuTreino3={getStatus:()=>({configured,mode:session?'user':mode,dirty,revision,blocked}),showLogin:accountPanel,backup:saveAllBackup};
 })();
