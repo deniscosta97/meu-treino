@@ -1,0 +1,25 @@
+MEU TREINO 2.0 — PUBLICAR NO GITHUB PAGES
+
+1. Entre em https://github.com e crie uma conta (se necessário).
+2. Clique em + > New repository. Nome sugerido: meu-treino.
+3. Selecione PUBLIC e clique em Create repository.
+4. Entre no repositório, clique Add file > Upload files.
+5. Extraia este ZIP no computador e envie TODOS os arquivos de dentro da pasta:
+   index.html, manifest.webmanifest, sw.js, icon.svg, icon-192.png e icon-512.png.
+   Atenção: os arquivos devem ficar na RAIZ do repositório, não dentro de uma subpasta.
+6. Clique em Commit changes.
+7. Abra Settings > Pages. Em Build and deployment, escolha Deploy from a branch,
+   branch main, folder /(root), e clique Save.
+8. Espere a publicação e abra o endereço informado pelo GitHub Pages, normalmente:
+   https://SEU-USUARIO.github.io/meu-treino/
+9. No Android, abra esse endereço no Chrome e use o menu (⋮) > Instalar app
+   ou Adicionar à tela inicial, quando a opção estiver disponível.
+
+IMPORTANTE
+- A hospedagem no GitHub Pages é gratuita para repositórios públicos.
+- Os arquivos do aplicativo são públicos. NÃO coloque dados pessoais ou backups no repositório.
+- Cargas, históricos e peso ficam somente no armazenamento local do navegador.
+- Não há conta nem sincronização automática com outro celular.
+- Para não perder seus dados, exporte backups no app e guarde-os em local seguro.
+- Ao alterar o endereço/instalação/navegador, os dados não migram automaticamente.
+- No iPhone, abra no Safari e use Compartilhar > Adicionar à Tela de Início.
