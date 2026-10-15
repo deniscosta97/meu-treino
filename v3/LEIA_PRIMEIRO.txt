@@ -1,23 +1,17 @@
-MEU TREINO 3.5.0 — LOGIN FIEL À REFERÊNCIA
+MEU TREINO 3.5.1 — LOGIN FIEL À REFERÊNCIA
 
-Nesta versão, a tela de login foi refeita para ficar mais próxima da imagem de referência:
-- monograma DX no topo;
-- logo Denxia completo;
-- foto do atleta na lateral direita;
-- títulos, formulário e botões reorganizados no estilo do mockup.
+Esta versão usa a arte da referência como base visual da tela de login.
+Os campos e botões funcionais ficam posicionados por cima da arte para ficar o mais fiel possível ao layout enviado.
 
 SUBSTITUA NA PASTA /v3 DO GITHUB:
 - index.html
 - cloud.js
 - sw.js
-- denxia-monogram.png
-- denxia-logo.png
-- athlete-crop.png
-- login-reference.png
+- login-art.png
 
 NÃO ALTERE O config.js.
 
 Depois, abra:
-https://deniscosta97.github.io/meu-treino/v3/?atualizar=3.5.0
+https://deniscosta97.github.io/meu-treino/v3/?atualizar=3.5.1
 
-Se aparecer a versão antiga, use Ctrl+Shift+R no PC ou feche e abra o app no celular.
+Se a versão antiga continuar, use Ctrl+Shift+R no PC ou feche e abra o app no celular.
