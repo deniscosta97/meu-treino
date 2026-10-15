@@ -40,42 +40,41 @@
   function clearPending(){if(session)storage.del(pendingKey(session.user.id))}
   // Entrada centralizada: nenhuma ficha aparece até o usuário optar por entrar ou visitar.
   // No modo visitante todos os registros ficam somente em memória; recarregar descarta tudo.
-  function showEntry(status='choose',notice=''){
-    const gate=$('entryGate');if(!gate)return;
-    if(status==='ready'){
-      document.body.classList.remove('entry-locked');gate.hidden=true;gate.innerHTML='';return;
-    }
-    gate.hidden=false;document.body.classList.add('entry-locked');
-    const loading=status==='loading';
-    gate.innerHTML=`<div class="entry-panel"><div class="brand-stack"><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"><img class="brand-logo" src="./denxia-logo.png" alt="Denxia Technologies"></div><div class="eyebrow">MEU TREINO · VERSÃO 3.2.2</div>
-      <h1>Seu progresso,<br>seu treino.</h1><p class="entry-subtitle">Treine do seu jeito. Crie suas fichas, registre as cargas e acompanhe sua evolução.</p>
-      ${notice?`<p class="cloudnotice error" role="alert">${safe(notice)}</p>`:''}
-      ${loading?'<p class="entry-loading" role="status">Verificando sua sessão…</p>':
-      `<form id="gateAuthForm" class="entry-login stack">
-        <div><label for="gateEmail">E-mail</label><input type="email" id="gateEmail" autocomplete="email" placeholder="voce@email.com" required></div>
-        <div><label for="gatePassword">Senha</label><input id="gatePassword" type="password" minlength="8" autocomplete="current-password" required></div>
-        <p id="gateAuthMessage" class="small" role="status" aria-live="polite"></p>
-        <button type="submit" id="gateSubmit" class="btn">Entrar</button>
-      </form>
-      <div class="entry-actions">
-        <button type="button" id="gateSignup" class="btn secondary">Criar conta gratuita</button>
-        <button type="button" id="gateGuest" class="btn entry-guest">Continuar sem cadastro</button>
-      </div><button type="button" id="gateForgot" class="entry-forgot">Esqueci minha senha</button>
-      <div class="entry-note"><strong>Com conta:</strong> seu histórico e suas cargas ficam sincronizados na nuvem.<br><strong>Sem cadastro:</strong> teste os treinos à vontade, mas nada será salvo e tudo será perdido ao sair ou recarregar.</div>`}
-      <div class="dnx-credit dnx-credit--gate">Criado por <strong>DENXIA TECHNOLOGIES</strong></div>
-    </div>`;
-    if(!loading){
-      $('gateSignup').onclick=()=>accountPanel('up');$('gateGuest').onclick=enterGuest;$('gateForgot').onclick=()=>accountPanel('forgot');
-      $('gateAuthForm').onsubmit=async e=>{e.preventDefault();const submit=$('gateSubmit');submit.disabled=true;msg($('gateAuthMessage'),'Entrando…');
-        try{
-          const email=$('gateEmail').value.trim(),password=$('gatePassword').value;
-          const resp=await request('POST','/auth/v1/token?grant_type=password',{email,password},false);
-          await login(resp);
-        }catch(err){msg($('gateAuthMessage'),friendly(err))}
-        finally{if(submit.isConnected)submit.disabled=false}
-      };
-    }
+
+function showEntry(status='choose',notice=''){
+  const gate=$('entryGate');if(!gate)return;
+  if(status==='ready'){
+    document.body.classList.remove('entry-locked');gate.hidden=true;gate.innerHTML='';return;
   }
+  gate.hidden=false;document.body.classList.add('entry-locked');
+  const loading=status==='loading';
+  gate.innerHTML=`<div class="entry-panel"><div class="entry-shell"><div class="entry-hero"><div><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"><img class="brand-logo" src="./denxia-logo.png" alt="Denxia Technologies"><div class="entry-brandline">Academia • Esporte • Tecnologia</div><div class="entry-appname">Meu <span class="accent">Treino</span></div><h1>Seu treino,<br>sua <span style="color:#2fa0ff">evolução.</span></h1><p class="entry-subtitle">Treine do seu jeito. Registre cargas, acompanhe sua evolução e use tecnologia para melhorar seu desempenho.</p></div><div class="entry-athlete"><div class="bars"><i></i><i></i><i></i><i></i></div><div class="quote">Disciplina<br>Evolução<br>Dados<br>Tecnologia<br>Resultados</div></div></div>
+    ${notice?`<p class="cloudnotice error" role="alert">${safe(notice)}</p>`:''}
+    ${loading?'<p class="entry-loading" role="status">Verificando sua sessão…</p>':
+    `<form id="gateAuthForm" class="entry-login">
+      <div><label for="gateEmail">E-mail</label><div class="entry-field"><span class="entry-icon">✉</span><input type="email" id="gateEmail" autocomplete="email" placeholder="voce@email.com" required></div></div>
+      <div><label for="gatePassword">Senha</label><div class="entry-field"><span class="entry-icon">🔒</span><input id="gatePassword" type="password" minlength="8" autocomplete="current-password" placeholder="Sua senha" required><span class="entry-tail">◌</span></div></div>
+      <p id="gateAuthMessage" class="small" role="status" aria-live="polite"></p>
+      <button type="submit" id="gateSubmit" class="btn primary-hero">Entrar</button>
+    </form>
+    <div class="entry-actions">
+      <button type="button" id="gateSignup" class="btn secondary-glass">Criar conta gratuita</button>
+      <button type="button" id="gateGuest" class="btn entry-guest">Continuar sem cadastro</button>
+    </div><button type="button" id="gateForgot" class="entry-forgot">Esqueci minha senha</button>
+    <div class="entry-note"><div class="entry-bullets"><div class="entry-bullet"><div class="bicon">☁</div><div><strong>Com conta:</strong> seu histórico e suas cargas ficam sincronizados na nuvem, em todos os seus dispositivos.</div></div><div class="entry-bullet"><div class="bicon">▥</div><div><strong>Sem cadastro:</strong> teste o app livremente, mas nada será salvo e tudo será perdido ao sair ou recarregar.</div></div></div></div>`}
+    <div class="entry-credit">Criado por <strong>DENXIA TECHNOLOGIES</strong></div></div></div>`;
+  if(!loading){
+    $('gateSignup').onclick=()=>accountPanel('up');$('gateGuest').onclick=enterGuest;$('gateForgot').onclick=()=>accountPanel('forgot');
+    $('gateAuthForm').onsubmit=async e=>{e.preventDefault();const submit=$('gateSubmit');submit.disabled=true;msg($('gateAuthMessage'),'Entrando…');
+      try{
+        const email=$('gateEmail').value.trim(),password=$('gatePassword').value;
+        const resp=await request('POST','/auth/v1/token?grant_type=password',{email,password},false);
+        await login(resp);
+      }catch(err){msg($('gateAuthMessage'),friendly(err))}
+      finally{if(submit.isConnected)submit.disabled=false}
+    };
+  }
+}
   function enterGuest(){
     if(session)return;
     clearTimeout(syncTimer);mode='guest';key=GUEST_KEY;
@@ -91,7 +90,7 @@
   }
   function printBar(){
     const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Não salva dados' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
-    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.2.2'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
+    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.3.0'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
     $('openAccount').onclick=()=>accountPanel();
     const m = $('cloudnotice');
     if(blocked){m.innerHTML=`<div class="cloudnotice error"><b>Sincronização pausada:</b> outra alteração foi encontrada na nuvem. Seus dados continuam salvos no aparelho. <button class="btn sm secondary" id="resolveConflict">Resolver</button></div>`;$('resolveConflict').onclick=()=>conflictPanel()}

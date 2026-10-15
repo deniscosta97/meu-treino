@@ -14,19 +14,38 @@
 
 /* A escolha de entrada é mostrada antes do conteúdo do aplicativo. */
 body.entry-locked main.app,body.entry-locked nav.bottom{display:none}
-.entry-gate{position:fixed;inset:0;z-index:35;overflow-y:auto;background:radial-gradient(circle at 70% -8%,rgba(44,111,255,.35),transparent 25%),radial-gradient(circle at 12% 18%,rgba(87,150,255,.14),transparent 20%),linear-gradient(145deg,#04070f,#091321 54%,#07101d);padding:32px 18px calc(30px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center}
+.entry-gate{position:fixed;inset:0;z-index:35;overflow-y:auto;background:
+  radial-gradient(circle at 82% 10%,rgba(52,132,255,.34),transparent 20%),
+  radial-gradient(circle at 15% 18%,rgba(25,64,135,.55),transparent 24%),
+  linear-gradient(160deg,#03060d 0%,#08101c 40%,#071427 68%,#03060d 100%);
+  padding:18px 14px calc(20px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center}
 .entry-gate[hidden]{display:none!important}
-.entry-panel{width:min(100%,470px);padding:34px 24px 26px;border-radius:28px;border:1px solid #29486f;background:linear-gradient(165deg,rgba(17,31,52,.95),rgba(9,17,31,.98) 72%);box-shadow:0 30px 90px rgba(1,5,12,.72), inset 0 1px 0 rgba(255,255,255,.03)}
-.entry-mark{display:grid;place-items:center;width:62px;height:62px;border:1px solid #3b766d;border-radius:20px;color:#40dcb0;font-size:31px;background:#183a3d;margin-bottom:20px}
-.entry-panel h1{font-size:33px;letter-spacing:-1.1px;margin:10px 0 9px;line-height:1.14}
-.entry-panel .entry-subtitle{font-size:14px;color:#adbed2;margin-bottom:24px;line-height:1.6}
-.entry-panel .entry-actions{display:grid;gap:11px;margin-top:10px}.entry-panel .entry-login{gap:10px}.entry-panel .entry-login input{min-height:46px}.entry-panel .entry-login label{font-size:12px}.entry-forgot{display:block;margin:12px auto 0;background:transparent;border:0;color:#b8d6eb;text-decoration:underline;padding:7px}.entry-forgot:focus-visible{outline:2px solid var(--mint);border-radius:6px}
-.entry-panel .btn{width:100%;min-height:52px;font-size:15px}
-.entry-panel .entry-guest{background:transparent;color:#d9e6f7;border:1px solid #536984}
-.entry-note{border-top:1px solid #344862;padding-top:16px;margin-top:21px;font-size:12px;line-height:1.55;color:#b3c7dd}
-.entry-note strong{color:#d8ebff}
+.entry-panel{width:min(100%,430px);position:relative;overflow:hidden;padding:24px 22px 24px;border-radius:28px;border:1px solid rgba(72,121,196,.5);background:linear-gradient(180deg,rgba(6,12,23,.94),rgba(8,18,34,.95));box-shadow:0 28px 80px rgba(1,4,10,.72), inset 0 1px 0 rgba(255,255,255,.05)}
+.entry-panel::before{content:'';position:absolute;inset:-1px;background:radial-gradient(circle at top right,rgba(42,118,255,.22),transparent 26%),linear-gradient(140deg,transparent 0 55%,rgba(33,109,255,.12) 55% 56%,transparent 56% 100%);pointer-events:none}
+.entry-panel::after{content:'';position:absolute;right:-40px;top:110px;width:240px;height:380px;border-radius:140px;background:radial-gradient(circle at 30% 30%,rgba(65,138,255,.32),rgba(7,17,33,0) 62%);filter:blur(16px);opacity:.8;pointer-events:none}
+.entry-shell{position:relative;z-index:1}
+.entry-panel h1{font-size:33px;letter-spacing:-1.2px;margin:8px 0 8px;line-height:1.03}
+.entry-panel .entry-subtitle{font-size:14px;color:#b7c8da;margin-bottom:18px;line-height:1.55;max-width:330px}
+.entry-panel .entry-login{display:grid;gap:10px;margin-top:10px}
+.entry-panel .entry-login label{font-size:12px;color:#dce9fb}
+.entry-field{position:relative}.entry-field input{width:100%;padding:16px 44px 16px 48px;border-radius:16px;border:1px solid #2f4870;background:rgba(5,11,21,.7);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(120,170,255,.04)}
+.entry-field input::placeholder{color:#6f84a5}.entry-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;color:#6ea7ff}.entry-tail{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:18px;color:#78aefe}
+.entry-forgot{display:block;margin:4px auto 0;background:transparent;border:0;color:#bfd8ff;text-decoration:underline;padding:6px 7px}
+.entry-panel .entry-actions{display:grid;gap:11px;margin-top:10px}.entry-panel .btn{width:100%;min-height:54px;font-size:15px;border-radius:16px}
+.entry-panel .btn.primary-hero{background:linear-gradient(90deg,#1568ff,#4cc0ff);color:#fff;font-size:17px;box-shadow:0 14px 34px rgba(24,110,255,.35)}
+.entry-panel .btn.secondary-glass{background:rgba(8,17,31,.55);border:1px solid #2b74ff;color:#f7fbff}
+.entry-panel .btn.entry-guest{background:rgba(2,8,15,.35);border:1px solid #365378;color:#d9e6f7}
 .entry-loading{text-align:center;font-size:14px;color:#b6c9df;padding:26px 0}
-@media(max-width:380px){.entry-panel{padding:24px 17px}.entry-panel h1{font-size:29px}}
+.entry-hero{display:grid;grid-template-columns:1fr 120px;gap:8px;align-items:start;margin-bottom:12px}
+.entry-brandline{font-size:11px;letter-spacing:3px;color:#79b4ff;text-transform:uppercase;font-weight:700;margin:8px 0 8px}
+.entry-appname{font-size:18px;line-height:1;margin:0 0 10px;font-weight:800;letter-spacing:.2px}.entry-appname .accent{color:#2fa0ff}
+.entry-athlete{position:relative;align-self:stretch;min-height:180px;border-radius:20px;background:linear-gradient(180deg,rgba(22,40,70,.55),rgba(4,10,18,.4));border:1px solid rgba(55,92,141,.45);overflow:hidden}
+.entry-athlete::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 18%,rgba(69,157,255,.36),transparent 24%),linear-gradient(145deg,transparent 0 15%,rgba(42,100,200,.20) 15% 17%,transparent 17% 100%)}
+.entry-athlete::after{content:'';position:absolute;right:-14px;top:18px;bottom:0;width:120px;background:radial-gradient(circle at 30% 12%,rgba(96,180,255,.42),transparent 16%),linear-gradient(180deg,rgba(3,7,14,0) 0%,rgba(5,10,18,.15) 100%);clip-path:polygon(36% 0,68% 5%,87% 20%,98% 45%,100% 72%,84% 95%,56% 100%,37% 84%,25% 67%,14% 44%,18% 22%)}
+.entry-athlete .quote{position:absolute;left:14px;bottom:14px;font-size:11px;line-height:1.5;text-transform:uppercase;letter-spacing:2px;color:#c9defc;opacity:.88}
+.entry-athlete .bars{position:absolute;left:14px;bottom:86px;display:flex;gap:6px;align-items:flex-end}.entry-athlete .bars i{display:block;width:5px;border-radius:2px;background:linear-gradient(180deg,#7fd1ff,#2d78ff)}.entry-athlete .bars i:nth-child(1){height:18px;opacity:.45}.entry-athlete .bars i:nth-child(2){height:28px;opacity:.62}.entry-athlete .bars i:nth-child(3){height:38px;opacity:.82}.entry-athlete .bars i:nth-child(4){height:52px}
+.entry-note{margin-top:14px;padding-top:14px;border-top:1px solid rgba(72,117,176,.5);font-size:13px;color:#dce5f0;line-height:1.55}.entry-bullets{display:grid;gap:11px;margin-top:12px}.entry-bullet{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;color:#dce8f8}.entry-bullet .bicon{font-size:18px;color:#54a9ff;line-height:1.1}.entry-bullet strong{color:#fff}.entry-credit{margin-top:16px;padding-top:10px;border-top:1px solid rgba(54,84,122,.55);text-align:center;font-size:12px;letter-spacing:1px;color:#9eb3ce}.entry-credit strong{color:#3aa7ff;letter-spacing:3px}
+@media(max-width:420px){.entry-panel{padding:18px 16px 20px}.entry-panel h1{font-size:29px}.entry-hero{grid-template-columns:1fr 96px}.entry-athlete{min-height:154px}.entry-appname{font-size:16px}}
 
 /* Assinatura discreta da criadora do aplicativo */
 .dnx-credit{font-size:11px;letter-spacing:.35px;color:#a5b8d0;text-align:center;line-height:1.55}
@@ -34,7 +53,7 @@ body.entry-locked main.app,body.entry-locked nav.bottom{display:none}
 .dnx-credit--app{border-top:1px solid #334662;margin:29px auto 7px;padding:15px 0 5px}
 .dnx-credit--gate{border-top:1px solid #344862;padding-top:14px;margin-top:22px}
 .brand-lockup{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}.brand-lockup.center{justify-content:center;text-align:center}.brand-logo{display:block;max-width:250px;width:100%;height:auto;filter:drop-shadow(0 8px 26px rgba(43,127,255,.22)) drop-shadow(0 0 10px rgba(64,220,176,.08))}.brand-logo--app{max-width:190px}.brand-mono{width:56px;height:auto;object-fit:contain;padding:0;background:none;border:0;border-radius:0;filter:drop-shadow(0 8px 24px rgba(43,127,255,.22))}.hero-brand{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}.hero-brand .muted{margin:0}.hero-brand small{display:block;color:#a9c2df}.entry-panel .brand-stack{display:grid;justify-items:start;gap:10px;margin-bottom:20px}.entry-panel .brand-caption{font-size:11px;letter-spacing:2px;font-weight:800;color:var(--mint);text-transform:uppercase}.entry-panel .brand-logo{max-width:300px}.entry-panel .brand-mono{width:68px;height:auto;margin-bottom:0}.footer-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}.footer-brand img{width:22px;height:auto;filter:drop-shadow(0 4px 12px rgba(43,127,255,.18))}.run-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:13px 0}.run-meta .metric{min-height:72px}.run-meta .metric b{font-size:15px;line-height:1.25}.run-meta .metric span{display:block;margin-top:5px;font-size:11px}.run-plan-highlight{font-size:15px;font-weight:800;color:var(--mint);margin:8px 0 2px}.run-total{font-size:12px;color:#d9e9fb}@media(max-width:480px){.run-meta{grid-template-columns:1fr}.hero-brand{justify-content:flex-start}.entry-panel .brand-logo{max-width:240px}}
-</style></head><body class="entry-locked"><main class="app"><div class="eyebrow">Meu Treino • versão 3.2.2 beta</div><h1>Seu progresso, seu treino.</h1><p class="muted small">Hipertrofia primeiro · corridas como complemento</p><div id="accountbar"></div><div id="cloudnotice"></div><div id="view"></div><footer class="dnx-credit dnx-credit--app">Desenvolvido por <strong>DENXIA TECHNOLOGIES</strong></footer></main><nav class="bottom" id="nav"><button class="nav active" data-page="inicio"><strong>⌂</strong>Início</button><button class="nav" data-page="treino"><strong>▤</strong>Treinos</button><button class="nav" data-page="evolucao"><strong>↗</strong>Evolução</button><button class="nav" data-page="historico"><strong>◷</strong>Histórico</button><button class="nav" data-page="ajustes"><strong>⚙</strong>Ajustes</button></nav><section id="entryGate" class="entry-gate" role="region" aria-label="Acessar Meu Treino"><div class="entry-panel"><div class="brand-stack"><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"><img class="brand-logo" src="./denxia-logo.png" alt="Denxia Technologies"></div><div class="eyebrow">MEU TREINO · 3.2.2</div><h1>O seu treino começa aqui.</h1><div class="entry-loading" role="status">Verificando sua sessão…</div><div class="dnx-credit dnx-credit--gate">Criado por <strong>DENXIA TECHNOLOGIES</strong></div></div></section><div class="toast" id="toast"></div><div id="modalroot"></div><div id="cloudmodal"></div>
+</style></head><body class="entry-locked"><main class="app"><div class="eyebrow">Meu Treino • versão 3.3.0 beta</div><h1>Seu progresso, seu treino.</h1><p class="muted small">Hipertrofia primeiro · corridas como complemento</p><div id="accountbar"></div><div id="cloudnotice"></div><div id="view"></div><footer class="dnx-credit dnx-credit--app">Desenvolvido por <strong>DENXIA TECHNOLOGIES</strong></footer></main><nav class="bottom" id="nav"><button class="nav active" data-page="inicio"><strong>⌂</strong>Início</button><button class="nav" data-page="treino"><strong>▤</strong>Treinos</button><button class="nav" data-page="evolucao"><strong>↗</strong>Evolução</button><button class="nav" data-page="historico"><strong>◷</strong>Histórico</button><button class="nav" data-page="ajustes"><strong>⚙</strong>Ajustes</button></nav><section id="entryGate" class="entry-gate" role="region" aria-label="Acessar Meu Treino"><div class="entry-panel"><div class="brand-stack"><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"><img class="brand-logo" src="./denxia-logo.png" alt="Denxia Technologies"></div><div class="eyebrow">MEU TREINO · 3.3.0</div><h1>O seu treino começa aqui.</h1><div class="entry-loading" role="status">Verificando sua sessão…</div><div class="dnx-credit dnx-credit--gate">Criado por <strong>DENXIA TECHNOLOGIES</strong></div></div></section><div class="toast" id="toast"></div><div id="modalroot"></div><div id="cloudmodal"></div>
 <script>
 'use strict';
 const DEFAULT={A:{name:'Treino A',day:'Segunda',focus:'Superiores + quadríceps',ex:[['Supino máquina',3,'8–12','Peitoral, ombro anterior e tríceps'],['Remada baixa triângulo',3,'8–12','Costas e bíceps'],['Leg press horizontal',3,'10–12','Quadríceps e glúteos'],['Cadeira extensora',2,'12–15','Quadríceps'],['Pullover na máquina / polia',2,'10–12','Grande dorsal; peito auxiliar'],['Elevação lateral',2,'12–15','Deltoide lateral'],['Tríceps pulley',2,'10–12','Tríceps'],['Rosca direta',2,'10–12','Bíceps'],['Panturrilha em máquina',3,'12–15','Panturrilhas']]},B:{name:'Treino B',day:'Quarta',focus:'Superiores + esteira',ex:[['Puxada frontal pronada',3,'8–12','Costas e bíceps'],['Supino inclinado',3,'8–12','Peito superior, ombros e tríceps'],['Remada máquina',3,'10–12','Costas médias'],['Desenvolvimento articulado',2,'8–12','Ombros e tríceps'],['Peck deck',2,'10–12','Peitoral'],['Rosca martelo',2,'10–12','Braquial e bíceps'],['Tríceps testa',2,'10–12','Tríceps'],['Prancha',3,'30–45 s','Abdômen e estabilidade']]},C:{name:'Treino C',day:'Sexta',focus:'Superiores + posterior/glúteos',ex:[['Stiff com halteres',3,'8–12','Posterior de coxa e glúteos'],['Cadeira flexora',3,'10–12','Posterior de coxa'],['Hack machine',2,'8–12','Quadríceps e glúteos'],['Cadeira abdutora',2,'12–15','Glúteo médio'],['Supino máquina',2,'10–12','Peito e tríceps'],['Puxada frontal neutra',2,'10–12','Costas e bíceps'],['Elevação lateral',2,'12–15','Deltoide lateral'],['Panturrilha em máquina',3,'12–15','Panturrilhas']]},S:{name:'Treino opcional',day:'Sábado',focus:'Braços e core',ex:[['Rosca Scott',2,'10–12','Bíceps'],['Tríceps corda',2,'10–12','Tríceps'],['Elevação lateral',2,'12–15','Ombro lateral'],['Abdominal máquina',3,'12–15','Abdômen'],['Prancha',2,'30–45 s','Core']]}};
@@ -72,7 +91,7 @@ document.addEventListener('click',handleAction);document.addEventListener('input
 </script><script>
 // Fallback caso scripts não carreguem ou uma sessão demore a inicializar.
 (function(){
-  var tag='mt322';
+  var tag='mt330';
   function advise(message){
     if (!document.body.classList.contains('entry-locked')) return;
     var gate=document.getElementById('entryGate');
@@ -91,10 +110,10 @@ document.addEventListener('click',handleAction);document.addEventListener('input
     });
     loading.appendChild(btn);
   }
-  window.__mt322ScriptError=function(){advise('Não foi possível carregar os arquivos do aplicativo. Verifique sua internet.');};
+  window.__mt330ScriptError=function(){advise('Não foi possível carregar os arquivos do aplicativo. Verifique sua internet.');};
   setTimeout(function(){
     if (typeof window.MeuTreino3==='undefined') advise('O aplicativo não terminou de carregar.');
     else advise('A verificação da sessão está demorando mais que o esperado.');
   },12000);
 })();
-</script><script src="./config.js?v=3.2.2"></script><script src="./cloud.js?v=3.2.2" onerror="window.__mt322ScriptError && window.__mt322ScriptError()"></script></body></html>
+</script><script src="./config.js?v=3.3.0"></script><script src="./cloud.js?v=3.3.0" onerror="window.__mt330ScriptError && window.__mt330ScriptError()"></script></body></html>
