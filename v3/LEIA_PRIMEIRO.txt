@@ -1,17 +1,15 @@
-MEU TREINO 3.5.1 — LOGIN FIEL À REFERÊNCIA
+MEU TREINO 3.5.2 — AJUSTE MOBILE + DESKTOP
 
-Esta versão usa a arte da referência como base visual da tela de login.
-Os campos e botões funcionais ficam posicionados por cima da arte para ficar o mais fiel possível ao layout enviado.
+Esta versão mantém a tela de login fiel à referência, mas com dois ajustes:
+- mais brilho/contraste no celular;
+- melhor adaptação e centralização no PC/desktop.
 
 SUBSTITUA NA PASTA /v3 DO GITHUB:
 - index.html
 - cloud.js
 - sw.js
-- login-art.png
-
-NÃO ALTERE O config.js.
 
 Depois, abra:
-https://deniscosta97.github.io/meu-treino/v3/?atualizar=3.5.1
+https://deniscosta97.github.io/meu-treino/v3/?atualizar=3.5.2
 
 Se a versão antiga continuar, use Ctrl+Shift+R no PC ou feche e abra o app no celular.
