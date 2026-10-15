@@ -48,7 +48,7 @@ function showEntry(status='choose',notice=''){
   }
   gate.hidden=false;document.body.classList.add('entry-locked');
   const loading=status==='loading';
-  gate.innerHTML=`<div class="entry-panel"><div class="entry-shell"><div class="entry-hero"><div><div class="entry-brandtop"><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"></div><div class="entry-brandline">Academia <span class="dot">•</span> Esporte <span class="dot">•</span> Tecnologia</div><div class="entry-divider"></div><div class="entry-appname">Meu <span class="accent">Treino</span></div><h1>Seu treino,<br>sua <span class="accent">evolução.</span></h1><p class="entry-subtitle">Treine do seu jeito. Registre cargas, acompanhe sua evolução e use tecnologia para melhorar seu desempenho.</p></div><div class="entry-athlete"><div class="bars"><i></i><i></i><i></i><i></i></div><div class="quote">Disciplina<br>Evolução<br>Dados<br>Tecnologia<br>Resultados</div></div></div>
+  gate.innerHTML=`<div class="entry-panel"><div class="entry-shell"><div class="entry-tophero"><div class="entry-copy"><div class="entry-brandtop"><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"></div><img class="entry-wordmark" src="./denxia-logo.png" alt="Denxia Technologies"><div class="entry-brandline">Academia <span class="dot">•</span> Esporte <span class="dot">•</span> Tecnologia</div><div class="entry-divider"></div><div class="entry-appname">Meu <span class="accent">Treino</span></div><h1>Seu treino,<br>sua <span class="accent">evolução.</span></h1><p class="entry-subtitle">Treine do seu jeito. Registre cargas, acompanhe sua evolução e use tecnologia para melhorar seu desempenho.</p></div><div class="entry-athlete"><div class="bars"><i></i><i></i><i></i><i></i></div><div class="quote">Disciplina<br>Evolução<br>Dados<br>Tecnologia<br>Resultados</div></div></div>
     ${notice?`<p class="cloudnotice error" role="alert">${safe(notice)}</p>`:''}
     ${loading?'<p class="entry-loading" role="status">Verificando sua sessão…</p>':
     `<form id="gateAuthForm" class="entry-login">
@@ -90,7 +90,7 @@ function showEntry(status='choose',notice=''){
   }
   function printBar(){
     const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Não salva dados' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
-    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.4.1'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
+    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.5.0'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
     $('openAccount').onclick=()=>accountPanel();
     const m = $('cloudnotice');
     if(blocked){m.innerHTML=`<div class="cloudnotice error"><b>Sincronização pausada:</b> outra alteração foi encontrada na nuvem. Seus dados continuam salvos no aparelho. <button class="btn sm secondary" id="resolveConflict">Resolver</button></div>`;$('resolveConflict').onclick=()=>conflictPanel()}
