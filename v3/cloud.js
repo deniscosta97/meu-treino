@@ -47,7 +47,7 @@
     }
     gate.hidden=false;document.body.classList.add('entry-locked');
     const loading=status==='loading';
-    gate.innerHTML=`<div class="entry-panel"><div class="brand-stack"><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"><img class="brand-logo" src="./denxia-logo.png" alt="Denxia Technologies"></div><div class="eyebrow">MEU TREINO · VERSÃO 3.2</div>
+    gate.innerHTML=`<div class="entry-panel"><div class="brand-stack"><img class="brand-mono" src="./denxia-monogram.png" alt="Denxia DX"><img class="brand-logo" src="./denxia-logo.png" alt="Denxia Technologies"></div><div class="eyebrow">MEU TREINO · VERSÃO 3.2.1</div>
       <h1>Seu progresso,<br>seu treino.</h1><p class="entry-subtitle">Treine do seu jeito. Crie suas fichas, registre as cargas e acompanhe sua evolução.</p>
       ${notice?`<p class="cloudnotice error" role="alert">${safe(notice)}</p>`:''}
       ${loading?'<p class="entry-loading" role="status">Verificando sua sessão…</p>':
@@ -91,7 +91,7 @@
   }
   function printBar(){
     const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Não salva dados' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
-    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.2'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
+    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.2.1'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
     $('openAccount').onclick=()=>accountPanel();
     const m = $('cloudnotice');
     if(blocked){m.innerHTML=`<div class="cloudnotice error"><b>Sincronização pausada:</b> outra alteração foi encontrada na nuvem. Seus dados continuam salvos no aparelho. <button class="btn sm secondary" id="resolveConflict">Resolver</button></div>`;$('resolveConflict').onclick=()=>conflictPanel()}
