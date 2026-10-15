@@ -1,9 +1,9 @@
-const VERSION='meu-treino-v3-beta-16-denxia-icon';
-const FILES=['./','./index.html','./manifest.webmanifest?v=3.5.3',
-  './icon-192.png?v=3.5.3','./icon-512.png?v=3.5.3',
-  './icon-maskable-192.png?v=3.5.3','./icon-maskable-512.png?v=3.5.3',
-  './apple-touch-icon.png?v=3.5.3','./favicon-64.png?v=3.5.3',
-  './login-art.png','./cloud.js?v=3.5.3','./config.js?v=3.5.3'];
+const VERSION='meu-treino-v3-beta-17-denxia-icons-ui';
+const FILES=['./','./index.html','./manifest.webmanifest?v=3.5.4',
+  './icon-192.png?v=3.5.4','./icon-512.png?v=3.5.4',
+  './icon-maskable-192.png?v=3.5.4','./icon-maskable-512.png?v=3.5.4',
+  './apple-touch-icon.png?v=3.5.4','./favicon-64.png?v=3.5.4',
+  './login-art.png','./cloud.js?v=3.5.4','./config.js?v=3.5.4'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(VERSION).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('meu-treino-v3-')&&k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{const url=new URL(e.request.url);if(e.request.method!=='GET'||url.origin!==location.origin||!url.pathname.includes('/v3/'))return;e.respondWith(fetch(e.request).then(res=>{if(res.ok)caches.open(VERSION).then(cache=>cache.put(e.request,res.clone()));return res}).catch(()=>caches.match(e.request)))});
