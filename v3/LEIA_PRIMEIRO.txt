@@ -1,0 +1,21 @@
+MEU TREINO 3.4.1 — AJUSTE VISUAL DO LOGIN
+
+Ajustes feitos nesta versão:
+- corrigida a parte superior direita da tela inicial;
+- removido o logo grande / texto “Denxia Technologies / Automação / Software / Inteligência” do topo;
+- mantido apenas o monograma DX no topo e pequeno no rodapé.
+
+SUBSTITUA NA PASTA /v3 DO GITHUB:
+- index.html
+- cloud.js
+- sw.js
+- denxia-monogram.png
+- denxia-logo.png (pode manter mesmo sem uso direto)
+- login-reference.png (pode manter)
+
+NÃO ALTERE O config.js.
+
+Depois abra:
+https://deniscosta97.github.io/meu-treino/v3/?atualizar=3.4.1
+
+Se o navegador mostrar a versão antiga, use Ctrl+Shift+R.
