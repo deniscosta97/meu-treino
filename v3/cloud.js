@@ -65,6 +65,10 @@ function showEntry(status='choose',notice=''){
     <div class="entry-credit-overlay" aria-hidden="true"></div>
   </div>`;
   if(!loading){
+    const gateEmail=$('gateEmail'), gatePassword=$('gatePassword');
+    const syncPlaceholder=(el,txt)=>{const apply=()=>{const has=!!el.value;el.classList.toggle('has-value',has);el.placeholder=has?'':txt};el.addEventListener('input',apply);el.addEventListener('blur',apply);el.addEventListener('focus',()=>{if(el.value)el.placeholder=''});apply();};
+    syncPlaceholder(gateEmail,'voce@email.com');
+    syncPlaceholder(gatePassword,'Sua senha');
     $('gateSignup').onclick=()=>accountPanel('up');
     $('gateGuest').onclick=enterGuest;
     $('gateForgot').onclick=()=>accountPanel('forgot');
@@ -93,7 +97,7 @@ function showEntry(status='choose',notice=''){
   }
   function printBar(){
     const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Não salva dados' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
-    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.5.6'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
+    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.5.7'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
     $('openAccount').onclick=()=>accountPanel();
     const m = $('cloudnotice');
     if(blocked){m.innerHTML=`<div class="cloudnotice error"><b>Sincronização pausada:</b> outra alteração foi encontrada na nuvem. Seus dados continuam salvos no aparelho. <button class="btn sm secondary" id="resolveConflict">Resolver</button></div>`;$('resolveConflict').onclick=()=>conflictPanel()}
