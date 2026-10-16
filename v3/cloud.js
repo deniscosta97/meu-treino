@@ -56,6 +56,7 @@ function showEntry(status='choose',notice=''){
         <input type="email" id="gateEmail" class="entry-hit entry-input entry-email" autocomplete="email" placeholder="voce@email.com" aria-label="E-mail" required>
         <label class="sr-only" for="gatePassword">Senha</label>
         <input id="gatePassword" type="password" class="entry-hit entry-input entry-password" minlength="8" autocomplete="current-password" placeholder="Sua senha" aria-label="Senha" required>
+        <button type="button" id="gateEye" class="entry-eye" aria-label="Mostrar senha" aria-pressed="false">Mostrar senha</button>
         <button type="submit" id="gateSubmit" class="entry-hit entry-button entry-submit">Entrar</button>
         <button type="button" id="gateSignup" class="entry-hit entry-button entry-signup">Criar conta gratuita</button>
         <button type="button" id="gateGuest" class="entry-hit entry-button entry-guest">Continuar sem cadastro</button>
@@ -69,6 +70,8 @@ function showEntry(status='choose',notice=''){
     const syncPlaceholder=(el,txt)=>{const apply=()=>{const has=!!el.value;el.classList.toggle('has-value',has);el.placeholder=has?'':txt};el.addEventListener('input',apply);el.addEventListener('blur',apply);el.addEventListener('focus',()=>{if(el.value)el.placeholder=''});apply();};
     syncPlaceholder(gateEmail,'voce@email.com');
     syncPlaceholder(gatePassword,'Sua senha');
+    const eye=$('gateEye');
+    if(eye) eye.onclick=()=>{const reveal=gatePassword.type==='password';gatePassword.type=reveal?'text':'password';eye.setAttribute('aria-label',reveal?'Ocultar senha':'Mostrar senha');eye.setAttribute('aria-pressed',String(reveal));gatePassword.focus({preventScroll:true})};
     $('gateSignup').onclick=()=>accountPanel('up');
     $('gateGuest').onclick=enterGuest;
     $('gateForgot').onclick=()=>accountPanel('forgot');
@@ -97,7 +100,7 @@ function showEntry(status='choose',notice=''){
   }
   function printBar(){
     const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Não salva dados' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
-    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.5.8'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
+    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.5.9'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
     $('openAccount').onclick=()=>accountPanel();
     const m = $('cloudnotice');
     if(blocked){m.innerHTML=`<div class="cloudnotice error"><b>Sincronização pausada:</b> outra alteração foi encontrada na nuvem. Seus dados continuam salvos no aparelho. <button class="btn sm secondary" id="resolveConflict">Resolver</button></div>`;$('resolveConflict').onclick=()=>conflictPanel()}
