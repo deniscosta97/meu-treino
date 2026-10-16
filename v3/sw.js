@@ -1,9 +1,9 @@
-const VERSION='meu-treino-v3-beta-23-denxia-login-360';
-const FILES=['./','./index.html','./manifest.webmanifest?v=3.6.0',
-  './icon-192.png?v=3.6.0','./icon-512.png?v=3.6.0',
-  './icon-maskable-192.png?v=3.6.0','./icon-maskable-512.png?v=3.6.0',
-  './apple-touch-icon.png?v=3.6.0','./favicon-64.png?v=3.6.0',
-  './login-art.png?v=3.6.0','./cloud.js?v=3.6.0','./config.js?v=3.6.0'];
+const VERSION='meu-treino-v3-beta-24-denxia-fullscreen-361';
+const FILES=['./','./index.html','./manifest.webmanifest?v=3.6.1',
+  './icon-192.png?v=3.6.1','./icon-512.png?v=3.6.1',
+  './icon-maskable-192.png?v=3.6.1','./icon-maskable-512.png?v=3.6.1',
+  './apple-touch-icon.png?v=3.6.1','./favicon-64.png?v=3.6.1',
+  './login-art.png?v=3.6.1','./cloud.js?v=3.6.1','./config.js?v=3.6.1'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(VERSION).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('meu-treino-v3-')&&k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{const url=new URL(e.request.url);if(e.request.method!=='GET'||url.origin!==location.origin||!url.pathname.includes('/v3/'))return;e.respondWith(fetch(e.request).then(res=>{if(res.ok)caches.open(VERSION).then(cache=>cache.put(e.request,res.clone()));return res}).catch(()=>caches.match(e.request)))});
