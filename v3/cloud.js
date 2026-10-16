@@ -51,10 +51,6 @@ function showEntry(status='choose',notice=''){
   gate.innerHTML=`<div class="entry-panel entry-panel--art">
     ${notice?`<div class="entry-notice" role="alert">${safe(notice)}</div>`:''}
     ${loading?`<div class="entry-status" role="status">Verificando sua sessão…</div>`:`
-      <div class="entry-brand-mask entry-brand-mask-top" aria-hidden="true"></div>
-      <div class="entry-brand-mask entry-brand-mask-title" aria-hidden="true"></div>
-      <div class="entry-brand-mini" aria-hidden="true">Meu <span>Treino</span></div>
-      <div class="entry-brand-mini-line" aria-hidden="true"></div>
       <form id="gateAuthForm" class="entry-form-overlay">
         <label class="sr-only" for="gateEmail">E-mail</label>
         <input type="email" id="gateEmail" class="entry-hit entry-input entry-email" autocomplete="email" placeholder="voce@email.com" aria-label="E-mail" required>
@@ -97,7 +93,7 @@ function showEntry(status='choose',notice=''){
   }
   function printBar(){
     const status = !configured ? 'Banco não configurado' : blocked ? 'Conflito de versões' : !session ? 'Não salva dados' : !navigator.onLine ? 'Offline (cópia local)' : dirty||busy ? 'Sincronização pendente' : 'Sincronizado';
-    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.5.4'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
+    $('accountbar').innerHTML = `<div class="cloudbar"><div><b>${session ? '☁ Conta conectada' : '▣ Meu Treino 3.5.5'}</b><div class="tag">${session ? safe(session.user.email || 'Usuário') : 'Visitante · registros temporários'} · ${safe(status)}</div></div><button class="btn secondary sm" id="openAccount">${session ? 'Minha conta' : 'Entrar / criar conta'}</button></div>`;
     $('openAccount').onclick=()=>accountPanel();
     const m = $('cloudnotice');
     if(blocked){m.innerHTML=`<div class="cloudnotice error"><b>Sincronização pausada:</b> outra alteração foi encontrada na nuvem. Seus dados continuam salvos no aparelho. <button class="btn sm secondary" id="resolveConflict">Resolver</button></div>`;$('resolveConflict').onclick=()=>conflictPanel()}
